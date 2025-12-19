@@ -1,6 +1,6 @@
 import random
 from enum import IntEnum
-
+from collections import Counter # To analyze frequencies efficiently.
 
 class GameAction(IntEnum):
 
@@ -20,6 +20,8 @@ Victories = {
     GameAction.Paper: GameAction.Scissors,
     GameAction.Scissors: GameAction.Rock
 }
+
+user_history = [] # Save our games for predict the next.
 
 def assess_game(user_action, computer_action):
 
@@ -60,10 +62,15 @@ def assess_game(user_action, computer_action):
 
 
 def get_computer_action():
-    computer_selection = random.randint(0, len(GameAction) - 1)
+
+    if not user_history:
+        computer_selection = random.randint(0, len(GameAction) - 1)
+    else:
+        most_common_user_move = Counter(user_history).most_common(1)[0][0]   # Analyze higher frequency.
+        computer_selection = Victories[most_common_user_move]
+
     computer_action = GameAction(computer_selection)
     print(f"Computer picked {computer_action.name}.")
-
     return computer_action
 
 
@@ -94,6 +101,8 @@ def main():
 
         computer_action = get_computer_action()
         assess_game(user_action, computer_action)
+
+        user_history.append(user_action)  #  We save action in memory the next turn.
 
         if not play_another_round():
             break
