@@ -49,3 +49,34 @@ La solución se ha construido bajo un enfoque modular y desacoplado, lo que perm
 
 ### Estrategia del Agente: Anticipación y Respuesta
 Para que el agente no juegue a ciegas, se ha dotado a la función  `get_computer_action()` de una capacidad de análisis basada en la experiencia previa
+<br>
+Se crea una lista en donde se guardan los registros de los tiros del jugador (piedra, papel, tijeras). Y básicamente el agente lo que hace es consultarla y elige lo opuesto a su tendencia. Ejemplo: Si el jugador de 20 tiradas, saca papel, el agente sacará tijeras (tijeras gana a papel...)
+
+```python
+
+# Añadimos la librería Counter
+from collections import Counter # To analyze frequencies efficiently.
+
+# Una lista para guardar el hisotrial de partidas del jugador
+user_history = [] # Save our games for predict the next.
+
+# Modificación final de la función get_computer_action
+def get_computer_action():
+
+    if not user_history:
+        computer_selection = random.randint(0, len(GameAction) - 1)
+    else:
+        # Buscar el valor más frecuente de la lista (historial de partidas)
+        most_common_user_move = Counter(user_history).most_common(1)[0][0]   # Analyze higher frequency.
+        # Utiliza un diccionario de mapeo (Victories) para ejecutar la elección más optima
+        computer_selection = Victories[most_common_user_move]
+        
+    # Finalmente, convierte un índice numérico en un objeto GameAction (IntEnum)
+    computer_action = GameAction(computer_selection)
+    print(f"Computer picked {computer_action.name}.")
+    return computer_action
+
+# Guardamos la elección del jugador en la función main para los futuros movimientos de las partidas
+user_history.append(user_action)  #  We save action in memory the next turn.
+
+```
