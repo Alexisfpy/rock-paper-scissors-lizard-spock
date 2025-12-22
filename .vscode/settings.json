@@ -1,6 +1,7 @@
 {
     "conventionalCommits.scopes": [
         "README",
-        "CODIFICACION"
+        "CODIFICACION",
+        "RPS_game"
     ]
 }
