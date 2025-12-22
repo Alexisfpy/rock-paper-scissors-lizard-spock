@@ -2,6 +2,7 @@
     "conventionalCommits.scopes": [
         "README",
         "CODIFICACION",
-        "RPS_game"
+        "RPS_game",
+        ".vsccode delete"
     ]
 }
