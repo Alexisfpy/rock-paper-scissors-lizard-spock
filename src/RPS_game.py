@@ -5,6 +5,8 @@ class GameAction(IntEnum):
     Rock = 0
     Paper = 1
     Scissors = 2
+    Lizard = 3
+    Spock = 4
 
 class GameResult(IntEnum):
     Victory = 0
@@ -15,20 +17,49 @@ class RPSGame:
     def __init__(self):
         # We add the global variables as properties of the RPSGame class
         self.user_history = []
-
-        self.victories = {
-            GameAction.Rock: GameAction.Paper,     
-            GameAction.Paper: GameAction.Scissors, 
-            GameAction.Scissors: GameAction.Rock    
+        # Add the rules of the game. Now there are 2 options 
+        self.rules = {
+            GameAction.Rock: {
+                GameAction.Scissors: "Rock smashes scissors",
+                GameAction.Lizard: "Rock crushes lizard"
+            },
+            GameAction.Paper: {
+                GameAction.Rock: "Paper covers rock",
+                GameAction.Spock: "Paper disproves Spock"
+            },
+            GameAction.Scissors: {
+                GameAction.Paper: "Scissors cuts paper",
+                GameAction.Lizard: "Scissors decapitates lizard"
+            },
+            GameAction.Lizard: {
+                GameAction.Spock: "Lizard poisons Spock",
+                GameAction.Paper: "Lizard eats paper"
+            },
+            GameAction.Spock: {
+                GameAction.Scissors: "Spock smashes scissors",
+                GameAction.Rock: "Spock vaporizes rock"
+            }
+        }
+        # Definition that the agent must choose to win a specific user move.
+        self.counter_moves = {
+            GameAction.Rock: [GameAction.Paper, GameAction.Spock],
+            GameAction.Paper: [GameAction.Scissors, GameAction.Lizard],
+            GameAction.Scissors: [GameAction.Rock, GameAction.Spock],
+            GameAction.Lizard: [GameAction.Rock, GameAction.Scissors],
+            GameAction.Spock: [GameAction.Paper, GameAction.Lizard]
         }
 
     def get_computer_action(self):
         if not self.user_history:
-            selection = random.randint(0, len(GameAction) - 1)
+            # In case the number of those listed changes and they are not sequential
+            selection = random.choice(list(GameAction))
         else:
-            # The prediction is maintained
+            # The user's most frequent prediction
             most_common_user_move = Counter(self.user_history).most_common(1)[0][0]
-            selection = self.victories[most_common_user_move]
+            
+            # Since there are now two possible winners, we choose one at random
+            possible_winning_moves = self.counter_moves[most_common_user_move]
+            selection = random.choice(possible_winning_moves)
 
         action = GameAction(selection)
         print(f"Computer picked {action.name}.")
@@ -40,14 +71,16 @@ class RPSGame:
             print(f"Both picked {user_action.name}. Draw!")
             return GameResult.Tie
 
-        # If the computer's movement overcomes the user's movement:
-        if computer_action == self.victories[user_action]:
-            print(f"{computer_action.name} beats {user_action.name}. You lost!")
-            return GameResult.Defeat
+        # User Victory: We check if the CPU action is on the User's victim list
+        if computer_action in self.rules[user_action]:
+            message = self.rules[user_action][computer_action]
+            print(f"{message}. You won!")
+            return GameResult.Victory
         
-        # In any other case (other than a draw or a loss), it is a victory
-        print(f"{user_action.name} beats {computer_action.name}. You won!")
-        return GameResult.Victory
+        # Defeat (If it's neither a draw nor a win, it's a defeat)
+        message = self.rules[computer_action][user_action]
+        print(f"{message}. You lost!")
+        return GameResult.Defeat
 
     def get_user_action(self):
         # We capture the user input
